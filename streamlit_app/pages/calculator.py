@@ -466,10 +466,28 @@ def _render_interactive_scatter(scored):
         subject_values = [s for s in filtered[subject_col].dropna().astype(str).unique().tolist() if s.strip()]
         subject_values = sorted(subject_values)
         options = ["All subjects"] + subject_values
+        auto_single_subject = len(subject_values) == 1
+        default_subject = subject_values[0] if auto_single_subject else "All subjects"
+
+        current_subject = st.session_state.get("scatter_subject_filter")
+        if current_subject not in options:
+            st.session_state["scatter_subject_filter"] = default_subject
+        elif auto_single_subject and current_subject != default_subject:
+            st.session_state["scatter_subject_filter"] = default_subject
+
         selected_subject = st.selectbox("Subject view", options, key="scatter_subject_filter")
         if selected_subject != "All subjects":
             filtered = filtered[filtered[subject_col].astype(str) == selected_subject]
             display_df = display_df[display_df[subject_col].astype(str) == selected_subject]
+
+        # If only one subject exists, reset the row selector once so all filtered rows start selected.
+        if auto_single_subject:
+            selector_seed = f"{selected_subject}:{len(display_df)}"
+            if st.session_state.get("scatter_row_selector_seed") != selector_seed:
+                st.session_state.pop("scatter_row_selector", None)
+                st.session_state["scatter_row_selector_seed"] = selector_seed
+        else:
+            st.session_state.pop("scatter_row_selector_seed", None)
     else:
         selected_subject = "All subjects"
         st.caption("No subject-style column was detected in this upload, so all valid rows will be shown together in a single scatterplot.")
