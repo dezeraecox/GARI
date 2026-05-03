@@ -1,6 +1,7 @@
-import smtplib
-from email.message import EmailMessage
 import streamlit as st
+import urllib.request
+import urllib.parse
+import urllib.error
 
 logo_col, title_col = st.columns([1, 4])
 with logo_col:
@@ -10,64 +11,45 @@ with title_col:
     st.subheader("|*Questions, feedback, or suggestions? Get in touch!*")
 
 
-def _get_contact_config():
+def _get_basin_endpoint():
     try:
-        return st.secrets.get("contact", {})
+        return st.secrets.get("contact", {}).get("basin_endpoint", "")
     except Exception:
-        return {}
+        return ""
 
 
-def _send_contact_email(name, sender_email, message):
-    cfg = _get_contact_config()
-    if not cfg.get("enabled", False):
-        return False, "Contact form is not configured yet."
-
-    required_fields = ["recipient_email", "smtp_host", "smtp_port", "smtp_username", "smtp_password", "from_email"]
-    missing = [field for field in required_fields if not cfg.get(field)]
-    if missing:
-        return False, "Contact form is not fully configured in Streamlit secrets."
-
-    recipient_email = cfg.get("recipient_email")
-    smtp_host = cfg.get("smtp_host")
-    smtp_port = int(cfg.get("smtp_port"))
-    smtp_username = cfg.get("smtp_username")
-    smtp_password = cfg.get("smtp_password")
-    from_email = cfg.get("from_email")
-    use_starttls = bool(cfg.get("use_starttls", False))
-    subject_prefix = cfg.get("subject_prefix", "[GARI Contact]")
-
-    email_message = EmailMessage()
-    email_message["Subject"] = f"{subject_prefix} New enquiry"
-    email_message["From"] = from_email
-    email_message["To"] = recipient_email
-    if sender_email:
-        email_message["Reply-To"] = sender_email
-
-    body = (
-        "New message submitted from the GARI app contact form.\n\n"
-        f"Name: {name}\n"
-        f"Email: {sender_email or 'Not provided'}\n\n"
-        "Message:\n"
-        f"{message}\n"
-    )
-    email_message.set_content(body)
+def _send_contact_form(name, sender_email, message):
+    endpoint = _get_basin_endpoint()
+    if not endpoint:
+        return False, "Contact form is not configured."
 
     try:
-        if use_starttls:
-            with smtplib.SMTP(smtp_host, smtp_port) as server:
-                server.ehlo()
-                server.starttls()
-                server.ehlo()
-                server.login(smtp_username, smtp_password)
-                server.send_message(email_message)
-        else:
-            with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
-                server.login(smtp_username, smtp_password)
-                server.send_message(email_message)
-    except Exception:
-        return False, "Could not send your message right now. Please try again later."
+        data = urllib.parse.urlencode({
+            "name": name,
+            "email": sender_email,
+            "message": message,
+        }).encode('utf-8')
 
-    return True, "Your message has been sent to the GARI team."
+        req = urllib.request.Request(
+            endpoint,
+            data=data,
+            headers={
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Agent': 'GARI-Streamlit/1.0'
+            }
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            status = response.status
+            if status in [200, 201]:
+                return True, "Your message has been sent to the GARI team. Thank you!"
+            else:
+                return False, f"Basin returned status {status}. Please try again later."
+    except urllib.error.HTTPError as e:
+        return False, f"HTTP error {e.code}: {e.reason}"
+    except urllib.error.URLError as e:
+        return False, f"Connection error: {e.reason}"
+    except Exception as e:
+        return False, f"Error: {str(e)}"
 
 
 
@@ -82,7 +64,7 @@ if submitted:
     if not sender_name.strip() or not sender_email.strip() or not sender_message.strip():
         st.error("Please enter your name, email, and message before submitting.")
     else:
-        sent, feedback = _send_contact_email(
+        sent, feedback = _send_contact_form(
             name=sender_name.strip(),
             sender_email=sender_email.strip(),
             message=sender_message.strip(),
