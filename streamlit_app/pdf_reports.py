@@ -21,7 +21,7 @@ def build_single_pdf_report(
     try:
         from weasyprint import HTML
     except Exception as ex:
-        raise RuntimeError("PDF export requires weasyprint.") from ex
+        raise RuntimeError(f"PDF export requires weasyprint: {ex}") from ex
 
     category_color = core.CATEGORY_PALETTE.get(category, "#000000")
     pdf_title = f"GARI - {assessment_label}" if assessment_label else "GARI"
@@ -224,7 +224,7 @@ def build_batch_pdf_report(scored, selected_rows=None, selected_subject="All sub
     try:
         from weasyprint import HTML
     except Exception as ex:
-        raise RuntimeError("PDF export requires weasyprint.") from ex
+        raise RuntimeError(f"PDF export requires weasyprint: {ex}") from ex
 
     valid = scored[scored["is_valid"]]
     invalid = scored[~scored["is_valid"]]
