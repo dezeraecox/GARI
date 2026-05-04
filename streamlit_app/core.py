@@ -8,6 +8,13 @@ GUIDANCE_MAP = {"Policy": 0, "Guideline": 0.5, "Education": 1}
 
 # Batch uploads can use either canonical values or single-calculator labels.
 TYPE_BATCH_DISPLAY_LABELS = ["Quiz/Exam", "Creative/Multimedia", "Extended Written"]
+
+# Map internal type values to user-facing display labels
+TYPE_DISPLAY_LABELS = {
+    "Quiz/Exam": "Quiz/Exam",
+    "Creative": "Creative/Multimedia",
+    "Report": "Extended Written",
+}
 TYPE_INPUT_ALIASES = {
     "quiz/exam": "Quiz/Exam",
     "creative": "Creative",

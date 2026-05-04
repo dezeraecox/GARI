@@ -23,6 +23,9 @@ def build_single_pdf_report(
     except Exception as ex:
         raise RuntimeError(f"PDF export requires weasyprint: {ex}") from ex
 
+    # Convert internal type value to display label
+    type_display = core.TYPE_DISPLAY_LABELS.get(assessment_type, assessment_type)
+
     category_color = core.CATEGORY_PALETTE.get(category, "#000000")
     pdf_title = f"GARI - {assessment_label}" if assessment_label else "GARI"
 
@@ -173,7 +176,7 @@ def build_single_pdf_report(
             <div class="inputs-grid">
                 <div class="input-card">
                     <div class="input-label">Type</div>
-                    <div class="input-value">{assessment_type}</div>
+                    <div class="input-value">{type_display}</div>
                 </div>
                 <div class="input-card">
                     <div class="input-label">Delivery</div>
@@ -283,6 +286,9 @@ def build_batch_pdf_report(scored, selected_rows=None, selected_subject="All sub
         dim_rows_html = ""
         for _, drow in dim_counts.iterrows():
             dlabel = str(drow["category"])
+            # Convert type values to display labels
+            if col_name == "type":
+                dlabel = core.TYPE_DISPLAY_LABELS.get(dlabel, dlabel)
             dcount = int(drow["count"])
             dwidth = (dcount / dim_max * 100.0) if dim_max > 0 else 0.0
             dim_rows_html += f"""
@@ -331,6 +337,9 @@ def build_batch_pdf_report(scored, selected_rows=None, selected_subject="All sub
             row_html = ""
             for col in display_cols:
                 val = str(row[col]) if pd.notna(row[col]) else ""
+                # Convert type values to display labels
+                if col == "type":
+                    val = core.TYPE_DISPLAY_LABELS.get(val, val)
                 row_html += f"<td>{html.escape(val)}</td>"
             table_rows += f"<tr>{row_html}</tr>"
 
