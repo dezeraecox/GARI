@@ -84,7 +84,7 @@ def _build_high_risk_tips(assessment_type, delivery, authenticity, guidance, wei
         tips.append("You already have guidelines in place; consider a short education step (examples of acceptable vs unacceptable AI use) to lower risk further.")
 
     if assessment_type == "Report" and delivery == "Online":
-        tips.append("Written reports submitted online are inherently higher risk, so adding a brief viva/check-in can help verify authorship and process.")
+        tips.append("Extended written assessments submitted online are inherently higher risk, so adding a brief viva/check-in can help verify authorship and process.")
 
     if authenticity == "Nothing":
         tips.append("Consider adding a personalised element (e.g., local data, individual topic, or student-specific reflection) so generic AI outputs are less useful.")
@@ -95,7 +95,7 @@ def _build_high_risk_tips(assessment_type, delivery, authenticity, guidance, wei
         tips.append("If feasible, include one supervised or in-person checkpoint to reduce the risk introduced by fully online delivery.")
 
     if assessment_type == "Report":
-        tips.append("You might split one large report into smaller components (e.g., outline, annotated sources, method note) to increase process visibility.")
+        tips.append("You might split one large extended written assessment into smaller components (e.g., outline, annotated sources, method note) to increase process visibility.")
 
     if weighting >= 50:
         tips.append("Because this task carries substantial weighting, consider reducing the percentage or spreading marks across multiple assessments to soften risk impact.")
