@@ -650,7 +650,7 @@ def _render_interactive_scatter(scored):
                 pdf_fig.update_yaxes(title_font_size=24, tickfont_size=18)
                 png_bytes = pio.to_image(pdf_fig, format="png", width=1400, height=900, scale=2)
             except Exception:
-                st.caption("💡 Use the camera icon in the plot toolbar to save a PNG snapshot.")
+                pass
 
     try:
         visual_pdf = build_batch_pdf_report(
@@ -659,29 +659,17 @@ def _render_interactive_scatter(scored):
             selected_subject=selected_subject,
             scatter_png_bytes=png_bytes,
         )
-        export_col_left, export_col_right = st.columns([1, 1])
-        with export_col_left:
-            if png_bytes is not None:
-                st.download_button(
-                    "Download scatterplot PNG",
-                    data=png_bytes,
-                    file_name="gari_subject_scatter.png",
-                    mime="image/png",
-                    use_container_width=False,
-                    key="scatter_png_download",
-                )
-        with export_col_right:
-            _, pdf_button_col = st.columns([1, 1])
-            with pdf_button_col:
-                pdf_file_name = "gari_batch_selected_report.pdf" if png_bytes is not None else "gari_batch_report.pdf"
-                st.download_button(
-                    "Download PDF report",
-                    data=visual_pdf,
-                    file_name=pdf_file_name,
-                    mime="application/pdf",
-                    use_container_width=False,
-                    key="batch_selected_pdf_download",
-                )
+        _, pdf_button_col = st.columns([1, 1])
+        with pdf_button_col:
+            pdf_file_name = "gari_batch_selected_report.pdf" if png_bytes is not None else "gari_batch_report.pdf"
+            st.download_button(
+                "Download PDF report",
+                data=visual_pdf,
+                file_name=pdf_file_name,
+                mime="application/pdf",
+                use_container_width=False,
+                key="batch_selected_pdf_download",
+            )
     except Exception as ex:
         st.error(f"PDF export failed: {type(ex).__name__}: {str(ex)}")
 
