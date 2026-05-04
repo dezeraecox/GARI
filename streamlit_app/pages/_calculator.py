@@ -659,7 +659,7 @@ def _render_interactive_scatter(scored):
             selected_subject=selected_subject,
             scatter_png_bytes=png_bytes,
         )
-        _, pdf_button_col = st.columns([1, 1])
+        _, pdf_button_col = st.columns([4, 1])
         with pdf_button_col:
             pdf_file_name = "gari_batch_selected_report.pdf" if png_bytes is not None else "gari_batch_report.pdf"
             st.download_button(
@@ -667,7 +667,7 @@ def _render_interactive_scatter(scored):
                 data=visual_pdf,
                 file_name=pdf_file_name,
                 mime="application/pdf",
-                use_container_width=False,
+                use_container_width=True,
                 key="batch_selected_pdf_download",
             )
     except Exception as ex:
