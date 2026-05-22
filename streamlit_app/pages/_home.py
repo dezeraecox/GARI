@@ -223,7 +223,7 @@ with st.container(key="mitigationgrid"):
         [
             {
                 "title": "Policy",
-                "description_html": "Institutional AI policy communicated in the subject outline.",
+                "description_html": "Institutional AI policy.",
             },
             {
                 "title": "Guideline",
